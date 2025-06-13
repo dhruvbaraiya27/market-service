@@ -1,6 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.api import prices
+from app.core.database import Base, engine
+from app.core.logging import setup_logging
+
+# Setup logging
+setup_logging()
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 # Create FastAPI instance
 app = FastAPI(
@@ -38,6 +47,10 @@ async def health_check():
         "status": "healthy",
         "service": settings.app_name
     }
+
+
+# Include routers
+app.include_router(prices.router, prefix="/api/v1")
 
 
 # This will be imported by uvicorn
